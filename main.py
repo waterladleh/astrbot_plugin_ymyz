@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from typing import Dict, List, Optional
 
 from astrbot.api.event import filter, AstrMessageEvent, MessageChain
@@ -142,3 +143,42 @@ class ZePiPlugin(Star):
             
         # 发送消息链
         yield event.chain_result(chain)
+
+    @filter.event_message_type(filter.EventMessageType.GROUP_MESSAGE)
+    async def check_ymyz_alert(self, event: AstrMessageEvent):
+        """
+        监听群消息：
+        如果包含 'ymyz' (不区分大小写) 或者 IP:Port 格式
+        则呼叫列表里的所有人
+        """
+        text = event.message_str
+        if not text:
+            return
+
+        # 1. 检查 ymyz (不区分大小写)
+        has_ymyz = "ymyz" in text.lower()
+        
+        # 2. 检查 IP:Port (简单正则: 数字.数字.数字.数字:数字)
+        # 例如: 8.134.214.80:36203
+        ip_pattern = r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}"
+        has_ip = re.search(ip_pattern, text)
+
+        if has_ymyz or has_ip:
+            group_id = event.get_group_id()
+            if not group_id:
+                return
+
+            gid_str = str(group_id)
+            user_list = self.data.get(gid_str, [])
+
+            if not user_list:
+                # 如果列表为空，不进行呼叫
+                return
+
+            # 构造呼叫消息
+            chain = [Plain("全网呼叫则则人\n")]
+            for uid in user_list:
+                chain.append(At(qq=uid))
+                chain.append(Plain(" "))
+            
+            yield event.chain_result(chain)
