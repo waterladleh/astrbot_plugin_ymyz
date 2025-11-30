@@ -8,7 +8,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
 from astrbot.api.message_components import At, Plain
 
-@register("astrbot_plugin_ymyz", "Taropoi", "恐怖则批", "1.1.0", "https://github.com/waterladleh/astrbot_plugin_ymyz")
+@register("astrbot_plugin_ymyz", "Taropoi", "恐怖则批", "1.1.1", "https://github.com/waterladleh/astrbot_plugin_ymyz")
 class ZePiPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -113,7 +113,7 @@ class ZePiPlugin(Star):
         
         # 校验：必须有 @ 且必须有昵称
         if not target_id or not nickname:
-            yield event.plain_result("格式不正确！\n请使用格式：/你是则批 @某人 机签/昵称\n例如：/你是则批 @xxx 昵称或机签")
+            yield event.plain_result("格式不正确！\n请使用格式：/你是则批 @某人 机签/昵称")
             return
 
         gid_str = str(group_id)
@@ -162,6 +162,7 @@ class ZePiPlugin(Star):
 
     def _build_call_chain(self, header_text: str, user_dict: Dict[str, str]) -> List:
         """构造换行显示的呼叫消息链"""
+        """无法实现换行"""
         chain = [Plain(header_text + "\n")]
         
         for uid_str, nickname in user_dict.items():
@@ -172,7 +173,7 @@ class ZePiPlugin(Star):
 
     @filter.command("则批列表")
     async def list_zepi(self, event: AstrMessageEvent):
-        """列出本群所有则批，带换行"""
+        """还是换不了行"""
         group_id = event.get_group_id()
         if not group_id:
             yield event.plain_result("请在群聊中使用此指令。")
@@ -180,7 +181,7 @@ class ZePiPlugin(Star):
 
         gid_str = str(group_id)
         if gid_str not in self.data or not self.data[gid_str]:
-            yield event.plain_result("本群目前还没有认证的则批。")
+            yield event.plain_result("破群无则。")
             return
 
         user_dict = self.data[gid_str]
