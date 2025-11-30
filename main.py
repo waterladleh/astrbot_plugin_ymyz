@@ -1,7 +1,7 @@
 import os
 import json
 import re
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from astrbot.api.event import filter, AstrMessageEvent, MessageChain
 from astrbot.api.star import Context, Star, register
